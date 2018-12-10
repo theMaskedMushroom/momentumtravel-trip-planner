@@ -15,6 +15,7 @@ class AirportController extends Controller
         $suggestions = Airport::select('id', 'name', 'city', 'country', 'iata_code')
                             ->where('name', 'LIKE', "{$search}%")
                             ->orWhere('city', 'LIKE', "{$search}%")
+                            ->orWhere('country', 'LIKE', "{$search}")
                             ->orWhere('iata_code', 'LIKE', "{$search}%")
                             ->get();
 
