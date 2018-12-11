@@ -18,3 +18,4 @@ use Illuminate\Http\Request;
 });*/
 
 Route::get('suggest_airport/{search}', 'AirportController@getSuggestions');
+Route::post('find_flights', 'FlightController@findFlights');

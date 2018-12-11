@@ -10,7 +10,8 @@ class AirportSelect extends Component
         super(props);
 
         this.state = {
-            inputValue: ''
+            inputValue: '',
+            selectedOption: null
         }
 
         // Binding and other method massaging
@@ -24,6 +25,9 @@ class AirportSelect extends Component
      */
     onChange(option)
     {
+        // Keep the option in our local state
+        this.setState({selectedOption: option});
+
         // Option is null if selection is reset
         this.props.dispatch({
             type:'airportSelect',
@@ -79,6 +83,7 @@ class AirportSelect extends Component
     render()
     {
         return <AsyncSelect
+                    value={!this.props[this.props.type] ? null : this.state.selectedOption}
                     cacheOptions
                     isClearable
                     placeholder={this.props.placeholder}
@@ -89,4 +94,12 @@ class AirportSelect extends Component
     }
 }
 
-export default connect()(AirportSelect);
+function mapStateToProps(state)
+{
+    return {
+        departure: state.departure,
+        arrival: state.arrival
+    }
+}
+
+export default connect(mapStateToProps)(AirportSelect);
