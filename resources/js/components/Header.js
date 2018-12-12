@@ -12,7 +12,7 @@ class Header extends Component
     {
         return (<div className='navbar'>
                     <Link to='/'>Search for flights</Link>
-                    <Link to='/flights'>See my trips</Link>
+                    <Link to='/trips'>See my trips</Link>
                 </div>
         )
     }

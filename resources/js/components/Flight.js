@@ -11,7 +11,7 @@ class Flight extends Component
             selected: false
         }
 
-        // Css classes for 'outbound' 'inbound' and 'selected'
+        // Css classes for 'outbound' 'inbound' and 'selected' (applied to the button header)
         this.outboundClassName = 'btn btn-block btn-info';
         this.inboundClassName = 'btn btn-block btn-warning';
         this.selectedClassName = 'btn btn-block btn-success';
