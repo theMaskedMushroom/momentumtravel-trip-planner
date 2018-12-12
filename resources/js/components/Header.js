@@ -10,11 +10,10 @@ class Header extends Component
 
     render()
     {
-        return (
-        <div className='navbar'>
-            <Link to='/'>Search for flights</Link>
-            <Link to='/flights'>See my trip</Link>
-        </div>
+        return (<div className='navbar'>
+                    <Link to='/'>Search for flights</Link>
+                    <Link to='/flights'>See my trips</Link>
+                </div>
         )
     }
 }

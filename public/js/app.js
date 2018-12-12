@@ -65048,7 +65048,13 @@ function verifySubselectors(mapStateToProps, mapDispatchToProps, mergeProps, dis
 
 var initialState = {
     departure: null,
-    arrival: null
+    arrival: null,
+    currentTripSelect: {
+        type: '',
+        outbound: null,
+        inbound: null
+    },
+    trips: []
 };
 
 var reducer = function reducer(state, action) {
@@ -65059,6 +65065,27 @@ var reducer = function reducer(state, action) {
             // Deep copy the state
             newState = JSON.parse(JSON.stringify(state));
             newState[action.payload.type] = action.payload.airport;
+            return newState;
+
+        case 'flightSelect':
+            // Deep copy the state
+            newState = JSON.parse(JSON.stringify(state));
+            newState.currentTripSelect.type = action.payload.tripType;
+            newState.currentTripSelect[action.payload.flightType] = action.payload.flight;
+            return newState;
+
+        case 'selectCurrentTrip':
+            newState = JSON.parse(JSON.stringify(state));
+            newState.trips.push(state.currentTripSelect);
+            return newState;
+
+        case 'resetCurrentTripSelect':
+            newState = JSON.parse(JSON.stringify(state));
+            newState.currentTripSelect = {
+                type: '',
+                outbound: null,
+                inbound: null
+            };
             return newState;
 
         default:
@@ -67007,7 +67034,7 @@ var Header = function (_Component) {
                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                     __WEBPACK_IMPORTED_MODULE_1_react_router_dom__["b" /* Link */],
                     { to: '/flights' },
-                    'See my trip'
+                    'See my trips'
                 )
             );
         }
@@ -67029,6 +67056,7 @@ var Header = function (_Component) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_axios__ = __webpack_require__(30);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_axios__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__AirportSelect__ = __webpack_require__(133);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Flight__ = __webpack_require__(169);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -67036,6 +67064,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 
 
 
@@ -67054,12 +67083,8 @@ var SearchFlights = function (_Component) {
             tripType: 'oneWay',
             flights: []
 
-            // Values to be used locally
-        };_this.outboundClassName = 'btn btn-block btn-info';
-        _this.inboundClassName = 'btn btn-block btn-warning';
-
-        // Bindings
-        _this.onTripTypeChange = _this.onTripTypeChange.bind(_this);
+            // Bindings
+        };_this.onTripTypeChange = _this.onTripTypeChange.bind(_this);
         _this.onFindFlights = _this.onFindFlights.bind(_this);
         return _this;
     }
@@ -67117,6 +67142,11 @@ var SearchFlights = function (_Component) {
                 console.log(error);
             });
 
+            // Reset current trip select
+            this.props.dispatch({
+                type: 'resetCurrentTripSelect'
+            });
+
             // Finally, reset the airport select boxes and values
             this.props.dispatch({
                 type: 'airportSelect',
@@ -67157,6 +67187,11 @@ var SearchFlights = function (_Component) {
                     type: 'arrival',
                     airport: null
                 }
+            });
+
+            // Reset the current trip select
+            this.props.dispatch({
+                type: 'resetCurrentTripSelect'
             });
         }
     }, {
@@ -67228,64 +67263,15 @@ var SearchFlights = function (_Component) {
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'div',
                         { className: 'text-info mt-2' },
-                        'Select flights below by clicking on the headers.'
+                        'Select flights below by clicking on the headers.',
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('br', null),
+                        'To deselect a flight, click the header again (unless trip has been accepted).'
                     )
                 ),
                 this.state.flights.map(function (flight) {
-                    return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                        'div',
-                        { className: 'card mt-3' },
-                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            'button',
-                            { className: _this2[flight.type + 'ClassName'], disabled: '' },
-                            flight.type
-                        ),
-                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            'div',
-                            { className: 'text-center mt-3' },
-                            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                'h4',
-                                null,
-                                flight.airline + ' ' + flight.flight_id
-                            )
-                        ),
-                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            'div',
-                            null,
-                            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                'strong',
-                                null,
-                                'From: '
-                            ),
-                            flight.departure_name
-                        ),
-                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            'div',
-                            null,
-                            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                'strong',
-                                null,
-                                'To:   '
-                            ),
-                            flight.arrival_name
-                        ),
-                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            'div',
-                            null,
-                            flight.departure_time
-                        ),
-                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            'div',
-                            null,
-                            flight.arrival_time
-                        ),
-                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            'div',
-                            null,
-                            'US$ ',
-                            flight.price
-                        )
-                    );
+                    return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_4__Flight__["a" /* default */], {
+                        flight: flight,
+                        tripType: _this2.state.tripType });
                 })
             );
         }
@@ -72597,6 +72583,277 @@ exports.default = manageState;
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 165 */,
+/* 166 */,
+/* 167 */,
+/* 168 */,
+/* 169 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_react__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_react_redux__ = __webpack_require__(15);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+var Flight = function (_Component) {
+    _inherits(Flight, _Component);
+
+    function Flight(props) {
+        _classCallCheck(this, Flight);
+
+        var _this = _possibleConstructorReturn(this, (Flight.__proto__ || Object.getPrototypeOf(Flight)).call(this, props));
+
+        _this.state = {
+            selected: false
+
+            // Css classes for 'outbound' 'inbound' and 'selected'
+        };_this.outboundClassName = 'btn btn-block btn-info';
+        _this.inboundClassName = 'btn btn-block btn-warning';
+        _this.selectedClassName = 'btn btn-block btn-success';
+
+        // We need this to disable regardless of state, props or whatever
+        _this.disabled = false;
+
+        // Bindings
+        _this.onFlightSelect = _this.onFlightSelect.bind(_this);
+        return _this;
+    }
+
+    /**
+     * The visual and functional state depends on which flights have been selected.
+     * Only one flight type can be selected at a time.
+     * If selected flights satisfy the trip type, we confirm trip selection and disable.
+     */
+
+
+    _createClass(Flight, [{
+        key: 'onFlightSelect',
+        value: function onFlightSelect(evt) {
+            // For one way trips, we select and ask right away if this is the trip they want
+            if (this.props.tripType === 'oneWay') {
+                if (window.confirm('Are you satisfied with this trip?')) {
+                    // Mark this flight as selected
+                    this.setState({ selected: true });
+
+                    // Force disable this flight button (others will disable automagically)
+                    this.disabled = true;
+
+                    // keep this flight in the store's currentTripSelect
+                    this.props.dispatch({
+                        type: 'flightSelect',
+                        payload: {
+                            tripType: this.props.tripType,
+                            flightType: this.props.flight.type,
+                            flight: this.props.flight
+                        }
+                    });
+
+                    // Ask the store to keep this trip 
+                    this.props.dispatch({
+                        type: 'selectCurrentTrip'
+                    });
+
+                    // done, bye bye
+                    return;
+                }
+
+                return;
+            }
+
+            // Now for round trips
+            var outbound = this.props.flight.type === 'outbound';
+            var inbound = this.props.flight.type === 'inbound';
+
+            if (!this.props.currentTripSelect.outbound && !this.props.currentTripSelect.inbound) // none selected, select this
+                {
+                    // Set state to selected
+                    this.setState({ selected: true });
+
+                    // And select the current flight
+                    this.props.dispatch({
+                        type: 'flightSelect',
+                        payload: {
+                            tripType: this.props.tripType,
+                            flightType: this.props.flight.type,
+                            flight: this.props.flight
+                        }
+                    });
+                } else if (outbound && this.props.currentTripSelect.outbound && !this.props.currentTripSelect.inbound || inbound && this.props.currentTripSelect.inbound && !this.props.currentTripSelect.outbound) // only this flight type selected, deselect
+                {
+                    // Set state not selected
+                    this.setState({ selected: false });
+
+                    // And deselect the current flight
+                    // And select the current flight
+                    this.props.dispatch({
+                        type: 'flightSelect',
+                        payload: {
+                            tripType: this.props.tripType,
+                            flightType: this.props.flight.type,
+                            flight: null
+                        }
+                    });
+                } else if (outbound && this.props.currentTripSelect.inbound && !this.props.currentTripSelect.outbound || inbound && this.props.currentTripSelect.outbound && !this.props.currentTripSelect.inbound) // last flight to be selected, confirm trip    }
+                {
+                    if (window.confirm('Are you satisfied with this trip?')) {
+                        // Mark this flight as selected
+                        this.setState({ selected: true });
+
+                        // Force disable this flight button (others will disable automagically)
+                        this.disabled = true;
+
+                        // keep this flight in the store's currentTripSelect
+                        this.props.dispatch({
+                            type: 'flightSelect',
+                            payload: {
+                                tripType: this.props.tripType,
+                                flightType: this.props.flight.type,
+                                flight: this.props.flight
+                            }
+                        });
+
+                        // Ask the store to keep this trip 
+                        this.props.dispatch({
+                            type: 'selectCurrentTrip'
+                        });
+
+                        // done, bye bye
+                        return;
+                    }
+
+                    return;
+                }
+        }
+
+        /**
+         * In case of a round trip, it is possible the the other type of flight was selected last,
+         * in which case we need to disable on update.
+         * We'll essentially force disable everything.
+         */
+
+    }, {
+        key: 'componentDidUpdate',
+        value: function componentDidUpdate() {
+            if (this.props.currentTripSelect.outbound && this.props.currentTripSelect.inbound && !this.disabled) {
+                this.disabled = true;
+
+                // trigger a rerender
+                this.setState({ bogus: 'blah' });
+            }
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            // Button color (class) is different when selected and when not (then, it depends on flight type)
+            var buttonClass = this.state.selected ? this.selectedClassName : this[this.props.flight.type + 'ClassName'];
+
+            // Disabled when set explicitly via props or locally, otherwise, see if we have a flight of same type in
+            // current trip select (can only have one per trip) and it's not us (selected) in which case, we disable
+            var disabled = this.props.disabled || this.disabled ? 'disabled' : this.props.currentTripSelect[this.props.flight.type] && !this.state.selected ? 'disabled' : '';
+
+            return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                'div',
+                { className: 'card mt-3' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'button',
+                    { className: buttonClass,
+                        disabled: disabled,
+                        onClick: this.onFlightSelect },
+                    this.props.flight.type
+                ),
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'div',
+                    { className: 'text-center mt-3' },
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                        'h4',
+                        null,
+                        this.props.flight.airline + ' ' + this.props.flight.flight_id
+                    )
+                ),
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'div',
+                    { className: 'ml-2' },
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                        'strong',
+                        null,
+                        'From: '
+                    ),
+                    this.props.flight.departure_name
+                ),
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'div',
+                    { className: 'ml-2' },
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                        'strong',
+                        null,
+                        'To:   '
+                    ),
+                    this.props.flight.arrival_name
+                ),
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'div',
+                    { className: 'd-flex justify-content-around mt-3' },
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                        'div',
+                        { className: 'text-center' },
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                            'kbd',
+                            null,
+                            'departure'
+                        ),
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                            'div',
+                            null,
+                            this.props.flight.departure_time
+                        )
+                    ),
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                        'div',
+                        { className: 'text-center' },
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                            'kbd',
+                            null,
+                            'arrival'
+                        ),
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                            'div',
+                            null,
+                            this.props.flight.arrival_time
+                        )
+                    )
+                ),
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'div',
+                    { className: 'text-right mr-2' },
+                    'US$ ',
+                    this.props.flight.price
+                )
+            );
+        }
+    }]);
+
+    return Flight;
+}(__WEBPACK_IMPORTED_MODULE_0_react__["Component"]);
+
+function mapStateToProps(state) {
+    return {
+        currentTripSelect: state.currentTripSelect
+    };
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Object(__WEBPACK_IMPORTED_MODULE_1_react_redux__["b" /* connect */])(mapStateToProps)(Flight));
 
 /***/ })
 /******/ ]);

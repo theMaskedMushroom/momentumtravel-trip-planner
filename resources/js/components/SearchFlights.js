@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import axios from 'axios';
 import AirportSelect from './AirportSelect';
+import Flight from './Flight';
 
 class SearchFlights extends Component
 {
@@ -13,10 +14,6 @@ class SearchFlights extends Component
             tripType: 'oneWay',
             flights: []
         }
-
-        // Values to be used locally
-        this.outboundClassName = 'btn btn-block btn-info';
-        this.inboundClassName = 'btn btn-block btn-warning';
 
         // Bindings
         this.onTripTypeChange = this.onTripTypeChange.bind(this);
@@ -75,6 +72,11 @@ class SearchFlights extends Component
             }.bind(this))
             .catch(function(error){ console.log(error)})
 
+        // Reset current trip select
+        this.props.dispatch({
+            type: 'resetCurrentTripSelect'
+        })
+
 
         // Finally, reset the airport select boxes and values
         this.props.dispatch({
@@ -114,6 +116,11 @@ class SearchFlights extends Component
                 type: 'arrival',
                 airport: null
             }
+        })
+
+        // Reset the current trip select
+        this.props.dispatch({
+            type: 'resetCurrentTripSelect'
         })
     }
 
@@ -157,20 +164,16 @@ class SearchFlights extends Component
 
                 {this.state.flights.length !== 0 &&   <div className='text-center mt-4'>
                                                         <h3>Flights</h3>
-                                                        <div className='text-info mt-2'>Select flights below by clicking on the headers.</div>
+                                                        <div className='text-info mt-2'>Select flights below by clicking on the headers.<br/>
+                                                                                        To deselect a flight, click the header again (unless trip has been accepted).
+                                                        </div>
                                                     </div>
                 }
 
                 {this.state.flights.map((flight)=> 
-                    <div className='card mt-3'>
-                        <button className={this[flight.type + 'ClassName']} disabled=''>{flight.type}</button>
-                        <div className='text-center mt-3'><h4>{flight.airline + ' ' + flight.flight_id}</h4></div>
-                        <div><strong>From: </strong>{flight.departure_name}</div>
-                        <div><strong>To:   </strong>{flight.arrival_name}</div>
-                        <div>{flight.departure_time}</div>
-                        <div>{flight.arrival_time}</div>
-                        <div>US$ {flight.price}</div>
-                    </div>
+                    <Flight
+                        flight={flight}
+                        tripType={this.state.tripType} />
                 )}
             </div>
         )
