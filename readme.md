@@ -17,3 +17,5 @@ The flight data comes from 6 airlines :
 </p>
 
 <p>You can view the app here <a href='http://bit.ly/simple-trip-planner'>bit.ly/simple-trip-planner</a></p>
+
+<p>The trips aren't saved to the database, so you lose them if you reload the page.</p>
